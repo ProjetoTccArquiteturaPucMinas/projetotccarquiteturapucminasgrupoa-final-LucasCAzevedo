@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.marketplace.model.CategoriaProduto;
 import com.example.marketplace.model.ItemCarrinho;
 import com.example.marketplace.model.Produto;
 import com.example.marketplace.model.ResumoCarrinho;
@@ -43,31 +44,68 @@ public class ServicoCarrinho {
                 .map(ItemCarrinho::calcularSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal percentualDesconto = BigDecimal.ZERO;
-        BigDecimal valorDesconto = BigDecimal.ZERO;
-        BigDecimal total = BigDecimal.ZERO;
-        int quantidade = itens.stream()
+        // =========================
+        // Calcula desconto por quantidade
+        // =========================
+        int quantidadeTotal = itens.stream()
                 .mapToInt(ItemCarrinho::getQuantidade)
                 .sum();
-        switch (quantidade) {
-            case 1:
-                percentualDesconto = new BigDecimal("0.00"); // 00%
-                break;
-            case 2:
-                percentualDesconto = new BigDecimal("0.05"); // 05%
-                break;
-            case 3:
-                percentualDesconto = new BigDecimal("0.07"); // 07%
-                break;
-            case 4:
-                percentualDesconto = new BigDecimal("0.10"); // 10%
-                break;
-        
-            default:
-                percentualDesconto = new BigDecimal("0.10"); // 10%
-                break;
+        BigDecimal descontoQuantidade = calcularDescontoQuantidade(quantidadeTotal);
+
+        // =========================
+        // Calcula desconto por categoria
+        // =========================
+        BigDecimal descontoCategoria = BigDecimal.ZERO;
+        for (ItemCarrinho item : itens) {
+            BigDecimal descontoPorItem = calcularDescontoCategoria(item.getProduto().getCategoria())
+                    .multiply(BigDecimal.valueOf(item.getQuantidade()));
+            descontoCategoria = descontoCategoria.add(descontoPorItem);
         }
 
-        return new ResumoCarrinho(itens, subtotal, percentualDesconto, valorDesconto, total);
+        // =========================
+        // Percentual total de desconto
+        // =========================
+        BigDecimal percentualDesconto = descontoQuantidade.add(descontoCategoria);
+        if (percentualDesconto.compareTo(new BigDecimal("25")) > 0) {
+            percentualDesconto = new BigDecimal("25");
+        }
+
+        // =========================
+        // Valor do desconto e total
+        // =========================
+        BigDecimal valorDesconto = subtotal.multiply(percentualDesconto).divide(new BigDecimal("100"));
+        BigDecimal total = subtotal.subtract(valorDesconto);
+
+        return new ResumoCarrinho(itens, subtotal, percentualDesconto.divide(new BigDecimal("100")), valorDesconto, total);
+    }
+
+    private BigDecimal calcularDescontoQuantidade(int quantidade) {
+        switch (quantidade) {
+            case 1:
+                return BigDecimal.ZERO;
+            case 2:
+                return new BigDecimal("5");
+            case 3:
+                return new BigDecimal("7");
+            default:
+                return new BigDecimal("10");
+        }
+    }
+
+    private BigDecimal calcularDescontoCategoria(CategoriaProduto categoria) {
+        switch (categoria) {
+            case CAPINHA:
+                return new BigDecimal("3");
+            case CARREGADOR:
+                return new BigDecimal("5");
+            case FONE:
+                return new BigDecimal("3");
+            case PELICULA:
+                return new BigDecimal("2");
+            case SUPORTE:
+                return new BigDecimal("2");
+            default:
+                return BigDecimal.ZERO;
+        }
     }
 }

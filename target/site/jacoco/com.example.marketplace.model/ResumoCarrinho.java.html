@@ -11,8 +11,8 @@ public class ResumoCarrinho {
     private BigDecimal valorDesconto;
     private BigDecimal total;
 
-    public ResumoCarrinho(List&lt;ItemCarrinho&gt; itens, BigDecimal subtotal, BigDecimal percentualDesconto,
-<span class="fc" id="L15">            BigDecimal valorDesconto, BigDecimal total) {</span>
+<span class="fc" id="L14">    public ResumoCarrinho(List&lt;ItemCarrinho&gt; itens, BigDecimal subtotal, BigDecimal percentualDesconto,</span>
+            BigDecimal valorDesconto, BigDecimal total) {
 <span class="fc" id="L16">        this.itens = itens;</span>
 <span class="fc" id="L17">        this.subtotal = subtotal;</span>
 <span class="fc" id="L18">        this.percentualDesconto = percentualDesconto;</span>
@@ -29,7 +29,7 @@ public class ResumoCarrinho {
     }
 
     public BigDecimal getPercentualDesconto() {
-<span class="fc" id="L32">        return percentualDesconto;</span>
+<span class="fc" id="L32">        return percentualDesconto.multiply(BigDecimal.valueOf(100));</span>
     }
 
     public BigDecimal getValorDesconto() {

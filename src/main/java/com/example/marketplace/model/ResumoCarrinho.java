@@ -29,7 +29,7 @@ public class ResumoCarrinho {
     }
 
     public BigDecimal getPercentualDesconto() {
-        return percentualDesconto;
+        return percentualDesconto.multiply(BigDecimal.valueOf(100));
     }
 
     public BigDecimal getValorDesconto() {
