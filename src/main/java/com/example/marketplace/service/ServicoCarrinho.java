@@ -43,6 +43,31 @@ public class ServicoCarrinho {
                 .map(ItemCarrinho::calcularSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        BigDecimal percentualDesconto = BigDecimal.ZERO;
+        BigDecimal valorDesconto = BigDecimal.ZERO;
+        BigDecimal total = BigDecimal.ZERO;
+        int quantidade = itens.stream()
+                .mapToInt(ItemCarrinho::getQuantidade)
+                .sum();
+        switch (quantidade) {
+            case 1:
+                percentualDesconto = new BigDecimal("0.00"); // 00%
+                break;
+            case 2:
+                percentualDesconto = new BigDecimal("0.05"); // 05%
+                break;
+            case 3:
+                percentualDesconto = new BigDecimal("0.07"); // 07%
+                break;
+            case 4:
+                percentualDesconto = new BigDecimal("0.10"); // 10%
+                break;
+        
+            default:
+                percentualDesconto = new BigDecimal("0.10"); // 10%
+                break;
+        }
+
         return new ResumoCarrinho(itens, subtotal, percentualDesconto, valorDesconto, total);
     }
 }
